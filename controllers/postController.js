@@ -68,4 +68,79 @@ const getPostByUserId = async (req, res) => {
     return response(res, 500, "Internal Server Error", e.message);
   }
 };
-module.exports = { createPost, getAllPosts, getPostByUserId };
+
+const likePost = async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user.userId;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return response(res, 404, "post not found");
+    const hasLiked = post.likes.includes(userId);
+    if (hasLiked) {
+      post.likes = post.likes.filter(
+        (id) => id.toString() !== userId.toString()
+      );
+      post.likeCount = Math.max(0, post.likeCount - 1);
+    } else {
+      post.likes.push(userId);
+      post.likeCount += 1;
+    }
+
+    const updatedPost = await post.save();
+    return response(
+      res,
+      201,
+      hasLiked ? "Post unliked" : "Post liked",
+      updatedPost
+    );
+  } catch (e) {
+    console.log(e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
+
+const commentPost = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.user;
+  const { text } = req.body;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return response(res, 404, "post not found");
+    post.comments.push({ user: userId, text });
+    post.commentCount += 1;
+
+    await post.save();
+    return response(res, 201, "Comment added successfully", post);
+  } catch (e) {
+    console.log(e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
+
+const sharePost = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.user;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return response(res, 404, "post not found");
+    const hasShared = post.share.includes(userId);
+    if (!hasShared && userId) {
+      post.share.push(userId);
+    }
+
+    post.shareCount += 1;
+    await post.save();
+    return response(res, 201, "Post shared successfully", post);
+  } catch (e) {
+    console.log(e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
+module.exports = {
+  createPost,
+  getAllPosts,
+  getPostByUserId,
+  likePost,
+  commentPost,
+  sharePost,
+};
