@@ -20,12 +20,12 @@ const registerUser = async (req, res) => {
       dateOfBirth,
     });
 
-    await newUser.save();
-
     const accessToken = generateToken(newUser);
     res.cookie("auth_token", accessToken, {
       httpOnly: true,
     });
+
+    await newUser.save();
 
     return response(res, 201, "User created successfully", {
       username: newUser.username,
