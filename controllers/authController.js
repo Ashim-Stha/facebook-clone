@@ -37,4 +37,33 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return response(res, 404, "User not found");
+    }
+
+    const matchPassword = await bcrypt.compare(password, user.password);
+    if (!matchPassword) {
+      return response(res, 404, "Invalid password");
+    }
+
+    const accessToken = generateToken(user);
+    res.cookie("auth_token", accessToken, {
+      httpOnly: true,
+    });
+
+    return response(res, 201, "User logged in successfully", {
+      username: user.username,
+      email: user.email,
+    });
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
+
+module.exports = { registerUser, loginUser };
