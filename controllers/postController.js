@@ -1,5 +1,6 @@
 const { uploadFileToCloudinary } = require("../config/cloudinary");
 const Post = require("../model/Post");
+const Story = require("../model/Story");
 const response = require("../utils/responseHandler");
 
 const createPost = async (req, res) => {
@@ -136,6 +137,49 @@ const sharePost = async (req, res) => {
     return response(res, 500, "Internal Server Error", e.message);
   }
 };
+
+const createStory = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const file = req.file;
+
+    if (!file) {
+      return response(res, 400, "file is required to create a story");
+    }
+    let mediaUrl = null;
+    let mediaType = null;
+
+    if (file) {
+      const uploadResult = await uploadFileToCloudinary(file);
+      mediaUrl = uploadResult?.secure_url;
+      mediaType = file.mimetype.startsWith("video") ? "video" : "audio";
+    }
+    const newStory = new Story({
+      user: userId,
+      mediaUrl,
+      mediaType,
+    });
+
+    await newStory.save();
+    return response(res, 201, "Story created successfully", newStory);
+  } catch (e) {
+    console.log("Error creating story", e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
+
+const getAllStory = async (req, res) => {
+  try {
+    const story = await Story.find()
+      .sort({ createdAt: -1 })
+      .populate("user", "_id username profilePicture email");
+
+    return response(res, 201, "All story fetched successfully", story);
+  } catch (e) {
+    console.log("Error fetching story", e);
+    return response(res, 500, "Internal Server Error", e.message);
+  }
+};
 module.exports = {
   createPost,
   getAllPosts,
@@ -143,4 +187,6 @@ module.exports = {
   likePost,
   commentPost,
   sharePost,
+  createStory,
+  getAllStory,
 };
