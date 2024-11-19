@@ -106,4 +106,103 @@ const deleteUserFromRequest = async (req, res) => {
   }
 };
 
-module.exports = { followUser, unfollowUser, deleteUserFromRequest };
+const getAllFriendRequest = async (req, res) => {
+  const { userId } = req?.user;
+
+  try {
+    const user = await User.findById(userId).select("followers following");
+    if (!user) {
+      return response(res, 404, "User not found");
+    }
+
+    const userToFollowBack = await User.find({
+      _id: {
+        $in: user.followers,
+        $nin: user.following,
+      },
+    }).select("username profilePicture email followerCount");
+    return response(
+      res,
+      200,
+      "users to follow back got successfully",
+      userToFollowBack
+    );
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e);
+  }
+};
+
+const getAllUserForRequest = async (req, res) => {
+  try {
+    const loggedInUserId = req.user.userId;
+
+    //find the logged in user and retrive their followers and following
+
+    const loggedInUser = await User.findById(loggedInUserId).select(
+      "followers following"
+    );
+    if (!loggedInUser) {
+      return response(res, 404, "User not found");
+    }
+
+    //find user who  neither followers not following of the login user
+    const userForFriendRequest = await User.find({
+      _id: {
+        $ne: loggedInUser, //user who follow the logged in user
+        $nin: [...loggedInUser.following, ...loggedInUser.followers], // exclued both
+      },
+    }).select("username profilePicture email followerCount");
+
+    return response(
+      res,
+      200,
+      "user for frined request get successfully ",
+      userForFriendRequest
+    );
+  } catch (error) {
+    return response(res, 500, "Internal server error", error.message);
+  }
+};
+
+const getAllMutualFriends = async (req, res) => {
+  const userId = req?.user?.userId;
+  try {
+    const user = await User.findById(userId)
+      .select("followers following ")
+      .populate(
+        "followers",
+        "username profilePicture email followerCount followingCount"
+      )
+      .populate(
+        "following",
+        "username profilePicture email followerCount followingCount"
+      );
+
+    if (!user) {
+      return response(res, 404, "User not found");
+    }
+
+    const followingUserId = new Set(
+      user.following.map((user) => user._id.toString())
+    );
+
+    const mutualFriends = user.followers.filter((follower) =>
+      followingUserId.has(follower._id.toString())
+    );
+
+    return response(res, 200, "Mutual friends got successfully", mutualFriends);
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e);
+  }
+};
+
+module.exports = {
+  followUser,
+  unfollowUser,
+  deleteUserFromRequest,
+  getAllFriendRequest,
+  getAllUserForRequest,
+  getAllMutualFriends,
+};
