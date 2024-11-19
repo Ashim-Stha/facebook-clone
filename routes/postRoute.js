@@ -11,6 +11,7 @@ const {
   getAllStory,
   createStory,
 } = require("../controllers/postController");
+
 const router = express.Router();
 
 router.post(

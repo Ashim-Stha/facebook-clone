@@ -1,3 +1,4 @@
+const { TopologyDescription } = require("mongodb");
 const User = require("../model/User");
 const response = require("../utils/responseHandler");
 
@@ -23,12 +24,10 @@ const followUser = async (req, res) => {
     await user.save();
     await userToFollow.save();
 
-    return response(
-      res,
-      200,
-      "User followed successfully",
-      JSON.stringify(user + userToFollow)
-    );
+    return response(res, 200, "User followed successfully", {
+      user,
+      userToFollow,
+    });
   } catch (e) {
     console.error(e);
     return response(res, 500, "Internal Server Error", e);
@@ -62,12 +61,10 @@ const unfollowUser = async (req, res) => {
     await user.save();
     await userToUnfollow.save();
 
-    return response(
-      res,
-      200,
-      "User unfollowed successfully",
-      JSON.stringify(user + userToUnfollow)
-    );
+    return response(res, 200, "User unfollowed successfully", {
+      user,
+      userToUnfollow,
+    });
   } catch (e) {
     console.error(e);
     return response(res, 500, "Internal Server Error", e);
@@ -198,6 +195,50 @@ const getAllMutualFriends = async (req, res) => {
   }
 };
 
+const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find().select(
+      "username profilePicture email followerCount followingCount"
+    );
+    return response(res, 200, "users got successfully", users);
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e);
+  }
+};
+
+const checkUserAuth = async (req, res) => {
+  const userId = req?.user?.userId;
+  if (!userId) return response(res, 403, "unauthenticated! please login");
+  try {
+    const user = await User.findById(userId).select("-password");
+    if (!user) return response(res, 403, "user not found");
+
+    return response(res, 201, "user is allowed to use facebook", user);
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e);
+  }
+};
+
+const getUserProfile = async (req, res) => {
+  const loggedInUserId = req?.user?.userId;
+  const { userId } = req.params;
+  try {
+    const userProfile = await User.findById(userId).select("-password");
+    if (!userProfile) return response(res, 403, "user not found");
+
+    const isOwner = userId === loggedInUserId;
+    return response(res, 201, "user profile got successfully", {
+      user: userProfile,
+      isOwner,
+    });
+  } catch (e) {
+    console.error(e);
+    return response(res, 500, "Internal Server Error", e);
+  }
+};
+
 module.exports = {
   followUser,
   unfollowUser,
@@ -205,4 +246,7 @@ module.exports = {
   getAllFriendRequest,
   getAllUserForRequest,
   getAllMutualFriends,
+  getAllUser,
+  checkUserAuth,
+  getUserProfile,
 };
