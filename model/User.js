@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     followerCount: { type: String, default: 0 },
     followingCount: { type: String, default: 0 },
+    bio: { type: mongoose.Schema.Types.ObjectId, ref: "Bio" },
   },
   { timestamps: true }
 );

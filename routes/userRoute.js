@@ -11,6 +11,9 @@ const {
   getAllUser,
   checkUserAuth,
 } = require("../controllers/userController");
+const {
+  createOrUpdateBio,
+} = require("../controllers/createOrUpdateController");
 const router = express.Router();
 
 router.post("/follow", authMiddleware, followUser);
@@ -22,4 +25,7 @@ router.get("/mutual-friends", authMiddleware, getAllMutualFriends);
 router.get("/", authMiddleware, getAllUser);
 router.get("/profile/:userId", authMiddleware, getUserProfile);
 router.get("/check-auth", authMiddleware, checkUserAuth);
+
+//bio
+router.put("/bio/:userId", authMiddleware, createOrUpdateBio);
 module.exports = router;
