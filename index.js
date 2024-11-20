@@ -7,6 +7,7 @@ const passport = require("./controllers/googleController");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
 const userRoute = require("./routes/userRoute");
+const messagesRoute = require("./routes/messagesRoute");
 const setupSocket = require("./config/socket");
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(passport.initialize());
 app.use("/auth", authRoute);
 app.use("/users", postRoute);
 app.use("/users", userRoute);
+app.use("/users", messagesRoute);
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () =>
