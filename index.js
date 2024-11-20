@@ -7,6 +7,7 @@ const passport = require("./controllers/googleController");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
 const userRoute = require("./routes/userRoute");
+const setupSocket = require("./config/socket");
 
 const app = express();
 app.use(express.json());
@@ -27,4 +28,7 @@ app.use("/users", postRoute);
 app.use("/users", userRoute);
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`server listening on ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`server listening on ${PORT}`)
+);
+setupSocket(server);

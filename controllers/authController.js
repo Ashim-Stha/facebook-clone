@@ -23,6 +23,8 @@ const registerUser = async (req, res) => {
     const accessToken = generateToken(newUser);
     res.cookie("auth_token", accessToken, {
       httpOnly: true,
+      // secure: true,
+      // sameSite: "None",
     });
 
     await newUser.save();
