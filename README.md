@@ -97,6 +97,9 @@ This is a Facebook clone project built with Node.js, Express, MongoDB, and Socke
 - `receiveMessage` - Receive a message
 - `getOnlineUsers` - Get online users
 
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
 ## License
 
