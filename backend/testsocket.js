@@ -1,7 +1,7 @@
 const io = require("socket.io-client");
 
 const socket = io("http://localhost:8080", {
-  query: { userId: "66499d903aab95ac81d4fa2c" },
+  query: { userId: "673971cde47879e7acf189c5" },
 });
 
 socket.on("connect", () => {
@@ -9,12 +9,16 @@ socket.on("connect", () => {
 
   // Send a test message
   socket.emit("sendMessage", {
-    sender: "66499d903aab95ac81d4fa2c",
-    receiver: "6648ba21a1f79127b4c7344b",
+    sender: "673971cde47879e7acf189c5",
+    receiver: "673b3d1d5c2fe4c59123c8f7",
     messageType: "text",
-    content: "Hello!",
+    content: "Oi Zoroooo!",
   });
 });
+
+//673971cde47879e7acf189c5 luffy
+//673b3d1d5c2fe4c59123c8f7 zoro
+//673b2f194fd14920207e1950 tony
 
 socket.on("getOnlineUsers", (userIds) => {
   userIds.forEach((Id) => {
@@ -23,6 +27,6 @@ socket.on("getOnlineUsers", (userIds) => {
 });
 
 // Listen for incoming messages
-// socket.on("receiveMessage", (messageData) => {
-//   console.log("Received message:", messageData);
-// });
+socket.on("receiveMessage", (messageData) => {
+  console.log("Received message:", messageData);
+});

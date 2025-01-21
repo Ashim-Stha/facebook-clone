@@ -1,8 +1,11 @@
 const { Server: SocketIOServer } = require("socket.io");
 const Message = require("../model/Message");
+
+const userSocketMap = new Map();
+let io;
+
 const setupSocket = (server) => {
-  const userSocketMap = new Map();
-  const io = new SocketIOServer(server, {
+  io = new SocketIOServer(server, {
     cors: {
       origin: process.env.FRONTEND_URL,
       methods: ["GET", "POST"],
@@ -51,10 +54,11 @@ const setupSocket = (server) => {
     if (senderSocketId)
       io.to(senderSocketId).emit("receiveMessage", messageData);
   };
-
-  const getReceiverSocketId = (userId) => {
-    return userSocketMap.get(userId);
-  };
 };
 
-module.exports = setupSocket;
+const getReceiverSocketId = (userId) => {
+  return userSocketMap.get(userId);
+};
+
+const ioInstance = () => io;
+module.exports = { setupSocket, getReceiverSocketId, ioInstance };

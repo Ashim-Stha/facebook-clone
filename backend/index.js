@@ -8,7 +8,7 @@ const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
 const userRoute = require("./routes/userRoute");
 const messagesRoute = require("./routes/messagesRoute");
-const setupSocket = require("./config/socket");
+const { setupSocket } = require("./config/socket");
 
 const app = express();
 app.use(express.json());

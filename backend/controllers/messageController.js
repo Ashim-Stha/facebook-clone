@@ -1,4 +1,5 @@
 const { uploadFileToCloudinary } = require("../config/cloudinary");
+const { getReceiverSocketId, ioInstance } = require("../config/socket");
 const Message = require("../model/Message");
 
 const getMessages = async (req, res) => {
@@ -60,6 +61,10 @@ const sendMessage = async (req, res) => {
     });
 
     await newMessage.save();
+
+    const receiverSocketId = getReceiverSocketId(receiver);
+    if (receiverSocketId)
+      ioInstance.to(receiverSocketId).emit("sendMessage", newMessage);
     return res.status(201).json(newMessage);
   } catch (e) {
     console.log("error getting posts", e);
@@ -67,4 +72,4 @@ const sendMessage = async (req, res) => {
   }
 };
 
-module.exports = { getMessages };
+module.exports = { getMessages, sendMessage };
