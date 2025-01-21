@@ -31,8 +31,8 @@ This is a Facebook clone project built with Node.js, Express, MongoDB, and Socke
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/facebook-clone.git
-   cd facebook-clone/backend
+   git clone <repository_url>
+   cd repository_url/backend
    ```
 
 2. Install dependencies:
